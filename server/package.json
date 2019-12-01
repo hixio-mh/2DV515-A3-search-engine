@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Server for 2dv515's assignment 3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Server",
+    "RESTAPI",
+    "Search",
+    "Engine"
+  ],
+  "author": "Anton Strand",
+  "license": "ISC"
+}
