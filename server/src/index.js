@@ -1,18 +1,47 @@
 const fs = require('fs')
 const Async = require('crocks/Async')
-const { map, concat, flip, liftA2 } = require('crocks')
-
-const prepend = flip(concat)
-
-const readdir = Async.fromNode (fs.readdir)
-
-const fullPaths = path => readdir(path).map (map (prepend (path)))
-
-// Async Error [String]
-const allPaths = liftA2(
+const Pair = require('crocks/Pair')
+const {
+  map,
+  chain,
+  merge,
   concat,
-  fullPaths('./dataset/Words/Programming/'),
-  fullPaths('./dataset/Words/Games/')
+  liftA2,
+  pipe,
+  sequence,
+  traverse
+} = require('crocks')
+const Page = require('./types/Page')
+
+const readdir = Async.fromNode(fs.readdir)
+const readFile = path => Async.fromNode(fs.readFile)(path, 'utf8')
+
+/** fullPaths :: String -> Async Error [ Pair URL String ] */
+const fullPaths = path =>
+  readdir(path).map(
+    map(filename =>
+      Pair('https://en.wikipedia.org/wiki/' + filename, path + filename)
+    )
+  )
+
+/** words :: String -> [ String ] */
+const words = x => x.replace(/[()]/g).split(' ')
+
+// allPaths :: () -> Async Error [ String ]
+const allPaths = () =>
+  liftA2(
+    concat,
+    fullPaths('./dataset/Words/Programming/'),
+    fullPaths('./dataset/Words/Games/')
+  )
+
+/** toPages :: () -> Async Error [ Page ] */
+const toPages = pipe(
+  allPaths,
+  map(map(traverse(Async, readFile))),
+  chain(sequence(Async)),
+  map(map(map(words))),
+  map(map(merge(Page.of)))
 )
 
-allPaths.fork(console.error, console.log)
+toPages().fork(console.error, console.log)
