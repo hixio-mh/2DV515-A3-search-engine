@@ -27,6 +27,23 @@ const fullPaths = path =>
 /** words :: String -> [ String ] */
 const words = x => x.replace(/[()]/g).split(' ')
 
+/** initWordToId :: () -> (String -> Number) */
+const initWordToId = () => {
+  const index = {}
+  let size = 0
+  return word => {
+    if (index[word]) return index[word]
+    else {
+      const id = size
+      size++
+      index[word] = id
+      return id
+    } 
+  }
+}
+
+const wordToId = initWordToId() 
+
 // allPaths :: () -> Async Error [ String ]
 const allPaths = () =>
   liftA2(
@@ -41,6 +58,7 @@ const toPages = pipe(
   map(map(traverse(Async, readFile))),
   chain(sequence(Async)),
   map(map(map(words))),
+  map(map(map(map(wordToId)))),
   map(map(merge(Page.of)))
 )
 
