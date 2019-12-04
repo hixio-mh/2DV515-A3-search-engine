@@ -30,19 +30,17 @@ const words = x => x.replace(/[()]/g).split(' ')
 /** initWordToId :: () -> (String -> Number) */
 const initWordToId = () => {
   const index = {}
-  let size = 0
+  let size = -1
   return word => {
-    if (index[word]) return index[word]
+    if (index[word] != null) return index[word]
     else {
-      const id = size
-      size++
-      index[word] = id
-      return id
-    } 
+      index[word] = ++size
+      return size
+    }
   }
 }
 
-const wordToId = initWordToId() 
+const wordToId = initWordToId()
 
 // allPaths :: () -> Async Error [ String ]
 const allPaths = () =>
@@ -62,4 +60,4 @@ const toPages = pipe(
   map(map(merge(Page.of)))
 )
 
-toPages().fork(console.error, console.log)
+// toPages().fork(console.error, console.log)
