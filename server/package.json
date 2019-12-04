@@ -18,6 +18,8 @@
     "nodemon": "^2.0.1"
   },
   "dependencies": {
-    "crocks": "^0.12.4"
+    "crocks": "^0.12.4",
+    "list": "^2.0.19",
+    "ramda": "^0.26.1"
   }
 }
