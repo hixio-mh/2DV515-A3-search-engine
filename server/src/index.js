@@ -135,7 +135,7 @@ const results = pages =>
       (results, scores, i) =>
         scores.fst() > 0
           ? List.append(
-            Pair(List.nth(i, pages), 1 * scores.fst() + 0.5 * scores.snd()),
+            Pair(List.nth(i, pages), scores.fst()), // + 0.8 * scores.snd()),
             results
           )
           : results,
