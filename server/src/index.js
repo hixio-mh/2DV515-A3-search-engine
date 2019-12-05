@@ -135,7 +135,7 @@ const results = pages =>
       (results, scores, i) =>
         scores.fst() > 0
           ? List.append(
-            Pair(List.nth(i, pages), scores.fst()), // + 0.8 * scores.snd()),
+            Pair(List.nth(i, pages), scores.fst() + 0.8 * scores.snd()),
             results
           )
           : results,
@@ -165,5 +165,5 @@ const readPages = pipe(
 
 readPages().fork(console.error, ps => {
   pages = ps
-  console.log(List.toArray(query('java')))
+  console.log(List.toArray(query('super mario')))
 })
