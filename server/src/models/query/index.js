@@ -10,6 +10,7 @@ const bimap = require('crocks/pointfree/bimap')
 const wordToId = require('../wordToId')
 const { maximum, minimum, words } = require('../../utils')
 const Score = require('../../types/Score')
+const SearchMatch = require('../../types/SearchMatch')
 
 /** documentLocation :: List Number -> Page -> Number */
 const locationScore = queryIds => ({ words }) =>
@@ -66,7 +67,7 @@ const getScores = queryIds =>
     Pair(List.empty(), List.empty())
   )
 
-/** getNormalizedScores :: List Page -> List Number -> List Pair */
+/** getNormalizedScores :: List Page -> List Number -> List Pair Number Number */
 const getNormalizedScores = pages => queryIds =>
   pipe(
     getScores(queryIds),
@@ -74,29 +75,29 @@ const getNormalizedScores = pages => queryIds =>
     sequenceList
   )(pages)
 
-/**  */
+/** matches :: List Page -> List Pair Number Number -> List SearchMatch */
 const matches = pages =>
   pipe(
     addIndex(reduce)(
       (results, scores, i) =>
         scores.fst() > 0
           ? List.append(
-            Pair(
-              List.nth(i, pages),
-              Score.of(
-                scores.fst() + 0.8 * scores.snd(),
-                scores.fst(),
-                scores.snd()
-              )
-            ),
-            results
-          )
+              SearchMatch.of(
+                List.nth(i, pages).url,
+                Score.of(
+                  scores.fst() + 0.8 * scores.snd(),
+                  scores.fst(),
+                  scores.snd(),
+                  0
+                )
+              ),
+              results
+            )
           : results,
       List.empty()
     ),
-    List.sortWith((a, b) => b.snd().total - a.snd().total),
+    List.sortWith((a, b) => b.score.total - a.score.total),
     List.take(5),
-    List.map(p => ({ url: p.fst().url, score: p.snd() }))
   )
 
 /** query :: List Page -> String -> List SearchMatch */
