@@ -9,6 +9,7 @@ const identity = require('crocks/combinators/identity')
 const bimap = require('crocks/pointfree/bimap')
 const wordToId = require('../wordToId')
 const { maximum, minimum, words } = require('../../utils')
+const Score = require('../../types/Score')
 
 /** documentLocation :: List Number -> Page -> Number */
 const locationScore = queryIds => ({ words }) =>
@@ -65,34 +66,46 @@ const getScores = queryIds =>
     Pair(List.empty(), List.empty())
   )
 
-const getNormalizedScores = queryIds =>
+/** getNormalizedScores :: List Page -> List Number -> List Pair */
+const getNormalizedScores = pages => queryIds =>
   pipe(
     getScores(queryIds),
     bimap(normalize, normalizeInverted),
     sequenceList
-  )
+  )(pages)
 
-const results = pages =>
+/**  */
+const matches = pages =>
   pipe(
     addIndex(reduce)(
       (results, scores, i) =>
         scores.fst() > 0
           ? List.append(
-            Pair(List.nth(i, pages), scores.fst() + 0.8 * scores.snd()),
+            Pair(
+              List.nth(i, pages),
+              Score.of(
+                scores.fst() + 0.8 * scores.snd(),
+                scores.fst(),
+                scores.snd()
+              )
+            ),
             results
           )
           : results,
       List.empty()
     ),
-    List.sortWith((a, b) => b.snd() - a.snd()),
+    List.sortWith((a, b) => b.snd().total - a.snd().total),
     List.take(5),
     List.map(p => ({ url: p.fst().url, score: p.snd() }))
   )
 
-const query = pages => query => {
-  const queryIds = List.map(wordToId, words(query))
-  const scores = getNormalizedScores(queryIds)(pages)
-  return results(pages)(scores)
-}
+/** query :: List Page -> String -> List SearchMatch */
+const query = pages =>
+  pipe(
+    words,
+    List.map(wordToId),
+    getNormalizedScores(pages),
+    matches(pages)
+  )
 
 module.exports = query
