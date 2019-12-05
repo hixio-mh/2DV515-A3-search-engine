@@ -22,8 +22,15 @@ const words = pipe(
   List.filter(not(isEmpty))
 )
 
+/** lines :: String -> Set String */
+const lines = pipe(
+  split('\n'),
+  xs => new Set(xs)
+)
+
 module.exports = {
   maximum,
   minimum,
-  words
+  words,
+  lines
 }
