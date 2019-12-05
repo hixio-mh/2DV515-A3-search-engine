@@ -8,7 +8,7 @@ const merge = require('crocks/pointfree/merge')
 const identity = require('crocks/combinators/identity')
 const bimap = require('crocks/pointfree/bimap')
 const wordToId = require('../wordToId')
-const { words } = require('../../utils')
+const { maximum, minimum, words } = require('../../utils')
 
 /** documentLocation :: List Number -> Page -> Number */
 const locationScore = queryIds => ({ words }) =>
@@ -31,12 +31,6 @@ const frequencyScore = queryIds =>
       0
     )
   )
-
-/** minimum :: Foldable f => f Number -> Number */
-const minimum = reduce(Math.min, Infinity)
-
-/** maximum :: Foldable f => f Number -> Number */
-const maximum = reduce(Math.max, -Infinity)
 
 /** normalizeInverted :: List Number -> List Number */
 const normalizeInverted = converge(
