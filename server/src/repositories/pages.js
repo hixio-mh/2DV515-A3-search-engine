@@ -73,15 +73,4 @@ const readPages = () =>
     allPageContent
   )
 
-let pages = null
-
-const savePages = ps => pages = ps || ps
-
-const initDatabase = readPages().map(calculatePageRank(20)).map(savePages)
-
-const allPages = () => pages
-
-module.exports = {
-  initDatabase,
-  allPages
-}
+module.exports = readPages().map(calculatePageRank(20))

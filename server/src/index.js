@@ -1,19 +1,21 @@
 'use strict'
+const http = require ('http')
+const { mount, logger, cors } = require ('paperplane')
+const PORT = 3001
 
-const { initDatabase, allPages } = require('./repositories/pages')
-const query = require('./models/query')
-const L = require('list/curried')
-const { time } = require('./utils')
+const routes = require ('./routes')
 
-console.time('start')
-initDatabase.fork(console.error, _ => {
-  console.timeEnd('start')
-  const [executionTime, results] = time(query(allPages()))('java programming')
-  const response = {
-    topResults: L.toArray(L.take(5, results)),
-    executionTime: executionTime / 1000,
-    numResults: L.length(results)
-  }
-  console.log(response)
-  console.log(L.toArray(L.take(5, results)))
-})
+const initDatabase = require('./repositories/pages')
+
+console.time('\nInitializing took')
+initDatabase.fork(console.error, pages => {
+  console.timeEnd('\nInitializing took')
+  const app = cors (routes(pages))
+  http
+    .createServer (mount ({ app, logger }))
+    .listen (PORT, () =>
+      console.log (
+        `\nServer is running on port ${ PORT }\nPress ctrl+c to terminate...\n`
+      ))
+}
+)

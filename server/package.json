@@ -20,6 +20,7 @@
   "dependencies": {
     "crocks": "^0.12.4",
     "list": "^2.0.19",
+    "paperplane": "^3.1.1",
     "ramda": "^0.26.1"
   }
 }

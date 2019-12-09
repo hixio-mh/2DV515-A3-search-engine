@@ -5,13 +5,11 @@ const converge = require('crocks/combinators/converge')
 const identity = require('crocks/combinators/identity')
 const { maximum, minimum } = require('../utils')
 
-
 /** normalize :: List Number -> List Number */
-const normalize = converge(
-  (max, scores) => map(score => score / max, scores),
-  scores => Math.max(maximum(scores), 0.00001),
-  identity
-)
+const normalize = scores => {
+  const max = Math.max(maximum(scores), 0.00001)
+  return map (score => score / max, scores)
+}
 
 /** normalizeInverted :: List Number -> List Number */
 const normalizeInverted = converge(

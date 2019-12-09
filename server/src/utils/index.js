@@ -35,10 +35,13 @@ const time = fn => (...args) => {
 
 }
 
+const roundTo2 = n => Math.round(n * 100) / 100
+
 module.exports = {
   maximum,
   minimum,
   words,
   lines,
-  time
+  time,
+  roundTo2
 }

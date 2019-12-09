@@ -8,7 +8,7 @@ const bimap = require('crocks/pointfree/bimap')
 const wordToId = require('../wordToId')
 const Score = require('../../types/Score')
 const SearchMatch = require('../../types/SearchMatch')
-const { words } = require('../../utils')
+const { words, roundTo2 } = require('../../utils')
 const { normalize, normalizeInverted } = require('../normalization')
 
 /** documentLocation :: List Number -> Page -> Number */
@@ -33,7 +33,7 @@ const frequencyScore = queryIds =>
     )
   )
 
-const sequenceList = merge((l1, l2) =>
+const toScores = merge((l1, l2) =>
   addIndex(reduce)(
     (list, n, i) => List.append({ content: n, location: List.nth(i, l2)}, list),
     List.empty(),
@@ -57,7 +57,7 @@ const getNormalizedScores = pages => queryIds =>
   pipe(
     getScores(queryIds),
     bimap(normalize, normalizeInverted),
-    sequenceList
+    toScores
   )(pages)
 
 /** matches :: List Page -> List Pair Number Number -> List SearchMatch */
@@ -70,10 +70,10 @@ const matches = pages =>
               SearchMatch.of(
                 List.nth(i, pages).url,
                 Score.of(
-                  content + 0.8 * location + 0.5 * List.nth(i, pages).pageRank,
-                  content,
-                  location * 0.8,
-                  List.nth(i, pages).pageRank * 0.5
+                  roundTo2(content + 0.8 * location + 0.5 * List.nth(i, pages).pageRank),
+                  roundTo2(content),
+                  roundTo2(location * 0.8),
+                  roundTo2(List.nth(i, pages).pageRank * 0.5)
                 )
               ),
               results
