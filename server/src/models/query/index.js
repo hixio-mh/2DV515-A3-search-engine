@@ -3,14 +3,13 @@
 const Pair = require('crocks/Pair')
 const List = require('list/curried')
 const { addIndex, pipe, prop, reduce } = require('ramda')
-const converge = require('crocks/combinators/converge')
 const merge = require('crocks/pointfree/merge')
-const identity = require('crocks/combinators/identity')
 const bimap = require('crocks/pointfree/bimap')
 const wordToId = require('../wordToId')
-const { maximum, minimum, words } = require('../../utils')
 const Score = require('../../types/Score')
 const SearchMatch = require('../../types/SearchMatch')
+const { words } = require('../../utils')
+const { normalize, normalizeInverted } = require('../normalization')
 
 /** documentLocation :: List Number -> Page -> Number */
 const locationScore = queryIds => ({ words }) =>
@@ -34,23 +33,9 @@ const frequencyScore = queryIds =>
     )
   )
 
-/** normalizeInverted :: List Number -> List Number */
-const normalizeInverted = converge(
-  (min, scores) => List.map(score => min / Math.max(score, 0.00001), scores),
-  minimum,
-  identity
-)
-
-/** normalize :: List Number -> List Number */
-const normalize = converge(
-  (max, scores) => List.map(score => score / max, scores),
-  scores => Math.max(maximum(scores), 0.00001),
-  identity
-)
-
 const sequenceList = merge((l1, l2) =>
   addIndex(reduce)(
-    (list, n, i) => List.append(Pair(n, List.nth(i, l2)), list),
+    (list, n, i) => List.append({ content: n, location: List.nth(i, l2)}, list),
     List.empty(),
     l1
   )
@@ -79,16 +64,16 @@ const getNormalizedScores = pages => queryIds =>
 const matches = pages =>
   pipe(
     addIndex(reduce)(
-      (results, scores, i) =>
-        scores.fst() > 0
+      (results, {content, location}, i) =>
+        content > 0
           ? List.append(
               SearchMatch.of(
                 List.nth(i, pages).url,
                 Score.of(
-                  scores.fst() + 0.8 * scores.snd(),
-                  scores.fst(),
-                  scores.snd(),
-                  0
+                  content + 0.8 * location + 0.5 * List.nth(i, pages).pageRank,
+                  content,
+                  location * 0.8,
+                  List.nth(i, pages).pageRank * 0.5
                 )
               ),
               results
@@ -97,7 +82,6 @@ const matches = pages =>
       List.empty()
     ),
     List.sortWith((a, b) => b.score.total - a.score.total),
-    List.take(5),
   )
 
 /** query :: List Page -> String -> List SearchMatch */

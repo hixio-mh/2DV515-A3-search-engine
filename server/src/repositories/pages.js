@@ -4,13 +4,14 @@ const fs = require('fs')
 const Async = require('crocks/Async')
 const fanout = require('crocks/Pair/fanout')
 const List = require('list/curried')
-const { chain, concat, map, pipe, split } = require('ramda')
+const { chain, concat, map, pipe } = require('ramda')
 const liftA2 = require('crocks/helpers/liftA2')
 const sequence = require('crocks/pointfree/sequence')
 const traverse = require('crocks/pointfree/traverse')
 const Page = require('../types/Page')
 const { words, lines } = require('../utils')
 const wordToId = require('../models/wordToId')
+const calculatePageRank = require('../models/calculatePageRank')
 
 /** readdir :: String -> Async Error [String] */
 const readdir = Async.fromNode(fs.readdir)
@@ -63,7 +64,7 @@ const allPageContent =
   )
 
 /** toPage :: (Set String, Pair String List Number) -> Page */
-const toPage = (links, {fst, snd}) => Page.of(fst(), snd(), links)
+const toPage = (links, {fst, snd}) => Page.of(fst(), snd(), links, 1)
 
 const readPages = () => 
   liftA2(
@@ -76,7 +77,7 @@ let pages = null
 
 const savePages = ps => pages = ps || ps
 
-const initDatabase = readPages().map(savePages)
+const initDatabase = readPages().map(calculatePageRank(20)).map(savePages)
 
 const allPages = () => pages
 
