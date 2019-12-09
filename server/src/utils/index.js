@@ -28,9 +28,17 @@ const lines = pipe(
   xs => new Set(xs)
 )
 
+const time = fn => (...args) => {
+  const start = Date.now()
+  const result = fn(...args)
+  return [Date.now() - start, result]
+
+}
+
 module.exports = {
   maximum,
   minimum,
   words,
-  lines
+  lines,
+  time
 }
