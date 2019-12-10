@@ -76,7 +76,6 @@ const matches = pages =>
             ),
             results
           )
-        
       },
       List.empty ()
     ),
