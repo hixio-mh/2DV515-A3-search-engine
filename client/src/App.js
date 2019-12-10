@@ -1,7 +1,49 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './App.css'
 
+// toLink :: URL -> JSX
+const toLink = url => (
+  <a href={url} target='_blank' rel='noopener noreferrer'>
+    {url
+      .split('/')
+      .pop()
+      .replace(/%2B/g, '+')}
+  </a>
+)
+
+// toResultMessage :: Result -> JSX
+const toResultMessage = ({ executionTime, numResults }) =>
+  executionTime ? (
+    <p>{`Found ${numResults} results in ${executionTime} sec`}</p>
+  ) : (
+    ''
+  )
+
+// formatQuery :: String -> String
+const formatQuery = query =>
+  query
+    .replace(/[+]/g, '%2B')
+    .split(/\s+/g)
+    .join('+')
+
+// searchFor :: String -> Promise Error Result
+const searchFor = query =>
+  window.fetch(`http://localhost:3001/search?q=${formatQuery(query)}`)
+
 function App () {
+  const [results, setResults] = useState({ topResults: [] })
+  const [query, setQuery] = useState('')
+
+  // search :: Event -> State Event
+  const search = e => {
+    e.preventDefault()
+    if (query !== '') {
+      searchFor(query)
+        .then(res => res.json())
+        .then(setResults)
+    }
+  }
+
   return (
     <div className='wrapper'>
       <header>
@@ -9,8 +51,14 @@ function App () {
       </header>
       <main>
         <form>
-          <input type='text' placeholder='Search...' />
-          <button type='submit'>Search</button>
+          <input
+            type='text'
+            placeholder='Search...'
+            onChange={e => setQuery(e.target.value)}
+          />
+          <button type='submit' onClick={search}>
+            Search
+          </button>
         </form>
         <table>
           <tbody>
@@ -21,44 +69,18 @@ function App () {
               <th>Location</th>
               <th>Page rank</th>
             </tr>
-            <tr>
-              <td className='alignLeft'>Java programming as a concept</td>
-              <td>1</td>
-              <td>0.8</td>
-              <td>0.7</td>
-              <td>0.2</td>
-            </tr>
-            <tr>
-              <td className='alignLeft'>Java</td>
-              <td>1</td>
-              <td>0.8</td>
-              <td>0.7</td>
-              <td>0.2</td>
-            </tr>
-            <tr>
-              <td className='alignLeft'>Java</td>
-              <td>1</td>
-              <td>0.8</td>
-              <td>0.7</td>
-              <td>0.2</td>
-            </tr>
-            <tr>
-              <td className='alignLeft'>Java</td>
-              <td>1</td>
-              <td>0.8</td>
-              <td>0.7</td>
-              <td>0.2</td>
-            </tr>
-            <tr>
-              <td className='alignLeft'>Java</td>
-              <td>1</td>
-              <td>0.8</td>
-              <td>0.7</td>
-              <td>0.2</td>
-            </tr>
+            {results.topResults.map(({ url, score }) => (
+              <tr key={url}>
+                <td className='alignLeft'>{toLink(url)}</td>
+                <td>{score.total}</td>
+                <td>{score.content}</td>
+                <td>{score.location}</td>
+                <td>{score.pageRank}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
-        <p>Results in XX sec</p>
+        {toResultMessage(results)}
       </main>
       <footer>
         <p>
