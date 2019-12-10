@@ -4,7 +4,7 @@
   "description": "My solution for assignment 3 in Web Intelligence (2DV515) at Linnaeus University",
   "main": "index.js",
   "scripts": {
-    "install": "cd server && npm install && cd ../client && npm start && cd ..",
+    "install": "cd server && npm install && cd ../client && npm install && cd ..",
     "start": "npm-run-all -p start:* -- --watch || 0",
     "start:client": "cd client && npm start",
     "start:server": "cd server && npm start"
