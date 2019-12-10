@@ -1,5 +1,3 @@
-const L = require('list/curried')
-
 /**
  * Page ::
  *   { url   :: String
@@ -13,7 +11,7 @@ const L = require('list/curried')
 
 const Page = (url, words, links, pageRank = 1) => ({ url, words, links, pageRank })
 
-const hasLinkTo = to => from => from.links.has(`/wiki/${to.url.split('/').pop()}`)
+const hasLinkTo = to => from => from.links.has (to.url)
 
 module.exports = {
   of: Page,

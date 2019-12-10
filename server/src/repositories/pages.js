@@ -25,10 +25,13 @@ const fullPaths = path =>
     map (fanout (concat ('https://en.wikipedia.org/wiki/'), concat (path)))
   )
 
+/** toLinks :: String -> Set String */
+const toLinks = pipe (lines, map (concat ('https://en.wikipedia.org')), xs => new Set (xs))
+
 /** getPageLinks :: String -> Async Error List (Set String) */
 const getPageLinks = path =>
   readdir (path)
-    .chain (traverse (Async, pipe (concat (path), readFile, map (lines))))
+    .chain (traverse (Async, pipe (concat (path), readFile, map (toLinks))))
     .map (List.from)
 
 /** toWordIds :: String -> List Number */
