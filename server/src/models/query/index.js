@@ -60,21 +60,24 @@ const getNormalizedScores = pages => queryIds =>
 const matches = pages =>
   pipe (
     addIndex (reduce) (
-      (results, { content, location }, i) =>
-        content > 0
-          ? List.append (
+      (results, { content, location }, i) => {
+        if (content <= 0) return results
+
+        const {url, pageRank} = List.nth (i, pages)
+        return List.append (
             SearchMatch.of (
-              List.nth (i, pages).url,
+              url,
               Score.of (
-                roundTo2 (content + 0.8 * location + 0.5 * List.nth (i, pages).pageRank),
+                roundTo2 (content + 0.8 * location + 0.5 * pageRank),
                 roundTo2 (content),
                 roundTo2 (location * 0.8),
-                roundTo2 (List.nth (i, pages).pageRank * 0.5)
+                roundTo2 (pageRank * 0.5)
               )
             ),
             results
           )
-          : results,
+        
+      },
       List.empty ()
     ),
     List.sortWith ((a, b) => b.score.total - a.score.total)
