@@ -63,19 +63,19 @@ const matches = pages =>
       (results, { content, location }, i) => {
         if (content <= 0) return results
 
-        const {url, pageRank} = List.nth (i, pages)
+        const { url, pageRank } = List.nth (i, pages)
         return List.append (
-            SearchMatch.of (
-              url,
-              Score.of (
-                roundTo2 (content + 0.8 * location + 0.5 * pageRank),
-                roundTo2 (content),
-                roundTo2 (location * 0.8),
-                roundTo2 (pageRank * 0.5)
-              )
-            ),
-            results
-          )
+          SearchMatch.of (
+            url,
+            Score.of (
+              roundTo2 (content + 0.8 * location + 0.5 * pageRank),
+              roundTo2 (content),
+              roundTo2 (location * 0.8),
+              roundTo2 (pageRank * 0.5)
+            )
+          ),
+          results
+        )
       },
       List.empty ()
     ),
